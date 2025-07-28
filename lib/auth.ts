@@ -9,22 +9,23 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: {label: "email", type: "text"},
-                password: {label: "password", type: "password"}
+                email: { label: "email", type: "text" },
+                password: { label: "password", type: "password" }
             },
             async authorize(credentials) {
-                if(!credentials?.email || !credentials?.password) {
+                if (!credentials?.email || !credentials?.password) {
                     throw new Error("Enter all details");
-                } 
+                }
                 try {
                     await connectToDatabase();
-                    const user = await User.findOne({email: credentials.email});
-                    if(!user) {
+                    const user = await User.findOne({ email: credentials.email });
+                    if (!user) {
                         throw new Error("User not registered yet");
+
                     }
 
                     const isValid = bcrypt.compare(user.password, credentials.password);
-                    if(!isValid) {
+                    if (!isValid) {
                         throw new Error("Invalid credentials");
                     }
                     return {
@@ -35,20 +36,20 @@ export const authOptions: NextAuthOptions = {
                 } catch (error) {
                     console.error("Error in next-auth login: ", error);
                     throw new Error("Internal Server Error");
-                    
+
                 }
             },
         })
     ],
     callbacks: {
-        async jwt({token, user}) {
-            if(user)
+        async jwt({ token, user }) {
+            if (user)
                 token.id = user.id;
             return token;
         },
-        async session({session, token}) {
-            if(session.user) {
-                session.user.id = token.id as string; 
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
             }
             return session;
         }
